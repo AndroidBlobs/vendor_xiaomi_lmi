@@ -1,0 +1,28 @@
+#!/bin/sh --
+
+# Copyright (c) 2019 Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+
+ril_db="/data/vendor/radio/qcrilNr.db"
+
+help() {
+    echo "Syntax error! Example: config_get.sh config_name"
+}
+
+if [ $# -ne 1 ]; then
+    help
+fi
+
+query_result=`echo "SELECT 1 FROM qcril_properties_table WHERE property='$1';" | sqlite3 $ril_db`
+if [[ $query_result == "1" ]]; then
+    result=`echo "SELECT value FROM qcril_properties_table WHERE property='$1';" | sqlite3 $ril_db`
+    if [ "$result" == "" ]; then
+        echo "SELECT def_val FROM qcril_properties_table WHERE property='$1';" | sqlite3 $ril_db
+    else
+        echo $result
+    fi
+else
+    getprop $1
+fi
+
